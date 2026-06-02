@@ -22,7 +22,6 @@ public class TicTacToeMessage implements Serializable {
     private char[][] board;
     private char symbol;
     private char currentTurn;
-    private char winner;
 
     public String getMessage() {
         return message;
@@ -98,13 +97,5 @@ public class TicTacToeMessage implements Serializable {
     public void setCurrentTurn(char currentTurn)
     {
         this.currentTurn = currentTurn;
-    }
-    public char getWinner()
-    {
-        return winner;
-    }
-    public void setWinner(char winner)
-    {
-        this.winner = winner;
     }
 }
