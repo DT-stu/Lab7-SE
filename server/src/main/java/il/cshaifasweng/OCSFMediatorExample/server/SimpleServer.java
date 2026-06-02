@@ -140,6 +140,49 @@ public class SimpleServer extends AbstractServer
 		}
 	}
 
+	private boolean checkWinner(char symbol)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			if ((board[i][0] == symbol) && (board[i][1] == symbol) && (board[i][2] == symbol))
+			{
+				return true;
+			}
+		}
+		for (int i = 0; i < 3; i++)
+		{
+			if ((board[0][i] == symbol) && (board[1][i] == symbol) && (board[2][i] == symbol))
+			{
+				return true;
+			}
+		}
+		if ((board[0][0] == symbol) && (board[1][1] == symbol) && (board[2][2] == symbol))
+		{
+			return true;
+		}
+
+		if ((board[0][2] == symbol) && (board[1][1] == symbol) && (board[2][0] == symbol))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	private boolean checkDraw()
+	{
+		for (int row = 0; row < 3; row++)
+		{
+			for (int col = 0; col < 3; col++)
+			{
+				if (board[row][col] != 'X' && board[row][col] != 'O')
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	private void handleMove(TicTacToeMessage ticTacToeMessage, ConnectionToClient client)
 	{
 		char symbol = getPlayerSymbol(client);
@@ -171,7 +214,23 @@ public class SimpleServer extends AbstractServer
 
 		board[row][col] = symbol;
 
-		System.out.println("player" + symbol + " selected cell [" + row + "][" + col + "]");
+		System.out.println(symbol + " selected cell [" + row + "][" + col + "]");
+
+		if (checkWinner(symbol))
+		{
+			gameOver = true;
+			sendGameMessage(player1, player1Symbol, TicTacToeMessage.Type.GAME_OVER, symbol + " won");
+			sendGameMessage(player2, player2Symbol, TicTacToeMessage.Type.GAME_OVER, symbol + " won");
+			return;
+		}
+
+		if (checkDraw())
+		{
+			gameOver = true;
+			sendGameMessage(player1, player1Symbol, TicTacToeMessage.Type.GAME_OVER, "Draw!");
+			sendGameMessage(player2, player2Symbol, TicTacToeMessage.Type.GAME_OVER, "Draw!");
+			return;
+		}
 
 		if (currentTurn == 'X')
 		{

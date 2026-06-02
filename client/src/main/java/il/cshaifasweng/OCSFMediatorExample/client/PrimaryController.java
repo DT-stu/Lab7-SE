@@ -20,6 +20,7 @@ public class PrimaryController {
 			SimpleClient.getClient().sendToServer(TicTacToeMessage.join());
 			statusLabel.setText("Joined the game.");
 			signLabel.setText("");
+			disableBoard(true);
 		} catch (IOException e) {
 			statusLabel.setText("Failed to join the game.");
 			e.printStackTrace();
@@ -63,6 +64,19 @@ public class PrimaryController {
 		button22.setText(charToText(board[2][2]));
 	}
 
+	private void disableBoard(boolean disabled)
+	{
+		button00.setDisable(disabled);
+		button01.setDisable(disabled);
+		button02.setDisable(disabled);
+		button10.setDisable(disabled);
+		button11.setDisable(disabled);
+		button12.setDisable(disabled);
+		button20.setDisable(disabled);
+		button21.setDisable(disabled);
+		button22.setDisable(disabled);
+	}
+
 	@Subscribe
 	public void onTicTacToeEvent(TicTacToeEvent event)
 	{
@@ -76,6 +90,21 @@ public class PrimaryController {
 			if (msg.getMessage() != null)
 			{
 				statusLabel.setText(msg.getMessage());
+			}
+			if (msg.getType() == TicTacToeMessage.Type.GAME_OVER)
+			{
+				disableBoard(true);
+			}
+			else if (msg.getSymbol() == 'X' || msg.getSymbol() == 'O')
+			{
+				if (msg.getCurrentTurn() == msg.getSymbol())
+				{
+					disableBoard(false);
+				}
+				else
+				{
+					disableBoard(true);
+				}
 			}
 		});
 	}
