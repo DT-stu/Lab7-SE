@@ -11,13 +11,18 @@ public class TicTacToeMessage implements Serializable {
 
     public enum Type
     {
-        JOIN, MOVE
+        JOIN, MOVE, WAITING, START, STATUS, GAME_OVER
     }
 
     private Type type;
     private int row;
     private int col;
     private String message;
+
+    private char[][] board;
+    private char symbol;
+    private char currentTurn;
+    private char winner;
 
     public String getMessage() {
         return message;
@@ -68,5 +73,38 @@ public class TicTacToeMessage implements Serializable {
     public Type getType()
     {
         return type;
+    }
+
+    public char[][] getBoard()
+    {
+        return board;
+    }
+    public void setBoard(char[][] board)
+    {
+        this.board = board;
+    }
+    public char getSymbol()
+    {
+        return symbol;
+    }
+    public void setSymbol(char symbol)
+    {
+        this.symbol = symbol;
+    }
+    public char getCurrentTurn()
+    {
+        return currentTurn;
+    }
+    public void setCurrentTurn(char currentTurn)
+    {
+        this.currentTurn = currentTurn;
+    }
+    public char getWinner()
+    {
+        return winner;
+    }
+    public void setWinner(char winner)
+    {
+        this.winner = winner;
     }
 }
