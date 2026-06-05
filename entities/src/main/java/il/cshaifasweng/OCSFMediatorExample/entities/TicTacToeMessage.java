@@ -4,11 +4,8 @@ import java.io.Serializable;
 
 public class TicTacToeMessage implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -8224097662914849956L;
-
+    //enum for different message types to communicate with the server
     public enum Type
     {
         JOIN, MOVE, WAITING, START, STATUS, GAME_OVER, REMATCH, DISCONNECT
@@ -26,25 +23,21 @@ public class TicTacToeMessage implements Serializable {
     public String getMessage() {
         return message;
     }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
+    //constructors
     public TicTacToeMessage(Type type) {
         this.type = type;
     }
-
-    public TicTacToeMessage(Type type, String msg) {
+    public TicTacToeMessage(Type type, String msg)
+    {
         this.message = msg;
         this.type = type;
     }
-
+    //message for join request
     public static TicTacToeMessage join()
     {
         return new TicTacToeMessage(Type.JOIN);
     }
-
+    //message to make a move on the board
     public static TicTacToeMessage move(int row, int col)
     {
         TicTacToeMessage msg = new TicTacToeMessage(Type.MOVE);
@@ -52,17 +45,17 @@ public class TicTacToeMessage implements Serializable {
         msg.setCol(col);
         return msg;
     }
-
+    //message for a rematch request
     public static TicTacToeMessage rematch()
     {
         return new TicTacToeMessage(Type.REMATCH);
     }
-
+    //message for disconnection request
     public static TicTacToeMessage disconnect()
     {
         return new TicTacToeMessage(Type.DISCONNECT);
     }
-
+    //getters and setters
     public int getRow()
     {
         return row;

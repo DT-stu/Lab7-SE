@@ -12,35 +12,39 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
 public class PrimaryController {
-
+	//variable that tracks if the game ended
 	private boolean gameEnded = false;
-
+	//initializing by disabling the board before the game starts and hiding the rematch button
 	@FXML
 	void initialize(){
 		EventBus.getDefault().register(this);
-		try {
+		try
+		{
 			SimpleClient.getClient().sendToServer(TicTacToeMessage.join());
-			statusLabel.setText("Joined the game.");
 			signLabel.setText("");
 			disableBoard(true);
 			rematchButton.setVisible(false);
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			statusLabel.setText("Failed to join the game.");
 			e.printStackTrace();
 		}
 	}
-
+	//helper function for sending a move to server for the board buttons
 	private void sendMove(int row, int col)
 	{
-		try {
+		try
+		{
 			SimpleClient.getClient().sendToServer(TicTacToeMessage.move(row, col));
-			statusLabel.setText("Move sent.");
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			statusLabel.setText("Failed to send the move.");
 			e.printStackTrace();
 		}
 	}
-
+	//helper function for translating the character of the symbol to the text on the button for updating the board
 	private String charToText(char c)
 	{
 		if (c == 'X' || c == 'O')
@@ -49,7 +53,7 @@ public class PrimaryController {
 		}
 		return "";
 	}
-
+	//method for updating the board usually after a move
 	private void updateBoard(char[][] board)
 	{
 		if (board == null)
@@ -66,7 +70,7 @@ public class PrimaryController {
 		button21.setText(charToText(board[2][1]));
 		button22.setText(charToText(board[2][2]));
 	}
-
+	//method for disabling a board usually when it's the opponents turn
 	private void disableBoard(boolean disabled)
 	{
 		button00.setDisable(disabled);
@@ -79,21 +83,25 @@ public class PrimaryController {
 		button21.setDisable(disabled);
 		button22.setDisable(disabled);
 	}
-
+	//method that receives updates and handles the GUI accordingly
 	@Subscribe
 	public void onTicTacToeEvent(TicTacToeEvent event)
 	{
 		Platform.runLater(() -> {
 			TicTacToeMessage msg = event.getMessage();
+			//updates board
 			updateBoard(msg.getBoard());
+			//updates the label according to the current symbol
 			if (msg.getSymbol() == 'X' || msg.getSymbol() == 'O')
 			{
 				signLabel.setText("You are: " + msg.getSymbol());
 			}
+			//shows a message to the client in the label if there is one
 			if (msg.getMessage() != null)
 			{
 				statusLabel.setText(msg.getMessage());
 			}
+			//if there's one player connected - keeps the board disabled
 			if (msg.getType() == TicTacToeMessage.Type.WAITING)
 			{
 				gameEnded = false;
@@ -102,12 +110,14 @@ public class PrimaryController {
 				rematchButton.setVisible(false);
 				return;
 			}
+			//if the game is over - shows the rematch button and disables the board
 			if (msg.getType() == TicTacToeMessage.Type.GAME_OVER)
 			{
 				gameEnded = true;
 				disableBoard(true);
 				rematchButton.setVisible(true);
 			}
+			//if the game starts - hides the rematch button and enables the board of the starting player
 			else if (msg.getType() == TicTacToeMessage.Type.START)
 			{
 				gameEnded = false;
@@ -122,6 +132,7 @@ public class PrimaryController {
 					disableBoard(true);
 				}
 			}
+			//otherwise - enable the player whose turn it is and disable the others
 			else if (msg.getSymbol() == 'X' || msg.getSymbol() == 'O')
 			{
 				if (!gameEnded)
@@ -224,14 +235,13 @@ public class PrimaryController {
 	void cell22(ActionEvent event) {
 		sendMove(2,2);
 	}
-
+	//sends rematch request to server once the button is clicked
 	@FXML
 	void reClicked(ActionEvent event)
 	{
 		try
 		{
 			SimpleClient.getClient().sendToServer(TicTacToeMessage.rematch());
-			statusLabel.setText("Rematch request sent.");
 		}
 		catch (IOException e)
 		{
@@ -239,7 +249,7 @@ public class PrimaryController {
 			e.printStackTrace();
 		}
 	}
-
+	//sends disconnect request to server once the button is clicked
 	@FXML
 	void dcClicked(ActionEvent event)
 	{
