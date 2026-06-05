@@ -13,6 +13,8 @@ import javafx.scene.control.Label;
 
 public class PrimaryController {
 
+	private boolean gameEnded = false;
+
 	@FXML
 	void initialize(){
 		EventBus.getDefault().register(this);
@@ -21,6 +23,7 @@ public class PrimaryController {
 			statusLabel.setText("Joined the game.");
 			signLabel.setText("");
 			disableBoard(true);
+			rematchButton.setVisible(false);
 		} catch (IOException e) {
 			statusLabel.setText("Failed to join the game.");
 			e.printStackTrace();
@@ -91,12 +94,25 @@ public class PrimaryController {
 			{
 				statusLabel.setText(msg.getMessage());
 			}
+			if (msg.getType() == TicTacToeMessage.Type.WAITING)
+			{
+				gameEnded = false;
+				signLabel.setText("");
+				disableBoard(true);
+				rematchButton.setVisible(false);
+				return;
+			}
 			if (msg.getType() == TicTacToeMessage.Type.GAME_OVER)
 			{
+				gameEnded = true;
 				disableBoard(true);
+				rematchButton.setVisible(true);
 			}
-			else if (msg.getSymbol() == 'X' || msg.getSymbol() == 'O')
+			else if (msg.getType() == TicTacToeMessage.Type.START)
 			{
+				gameEnded = false;
+				rematchButton.setVisible(false);
+
 				if (msg.getCurrentTurn() == msg.getSymbol())
 				{
 					disableBoard(false);
@@ -104,6 +120,22 @@ public class PrimaryController {
 				else
 				{
 					disableBoard(true);
+				}
+			}
+			else if (msg.getSymbol() == 'X' || msg.getSymbol() == 'O')
+			{
+				if (!gameEnded)
+				{
+					rematchButton.setVisible(false);
+
+					if (msg.getCurrentTurn() == msg.getSymbol())
+					{
+						disableBoard(false);
+					}
+					else
+					{
+						disableBoard(true);
+					}
 				}
 			}
 		});
@@ -135,6 +167,12 @@ public class PrimaryController {
 
 	@FXML
 	private Button button22;
+
+	@FXML
+	private Button dcButton;
+
+	@FXML
+	private Button rematchButton;
 
 	@FXML
 	private Label signLabel;
@@ -185,5 +223,34 @@ public class PrimaryController {
 	@FXML
 	void cell22(ActionEvent event) {
 		sendMove(2,2);
+	}
+
+	@FXML
+	void reClicked(ActionEvent event)
+	{
+		try
+		{
+			SimpleClient.getClient().sendToServer(TicTacToeMessage.rematch());
+			statusLabel.setText("Rematch request sent.");
+		}
+		catch (IOException e)
+		{
+			statusLabel.setText("Failed to request rematch.");
+			e.printStackTrace();
+		}
+	}
+
+	@FXML
+	void dcClicked(ActionEvent event)
+	{
+		try
+		{
+			SimpleClient.getClient().sendToServer(TicTacToeMessage.disconnect());
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		Platform.exit();
 	}
 }

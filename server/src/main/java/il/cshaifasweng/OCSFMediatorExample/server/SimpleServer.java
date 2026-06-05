@@ -19,6 +19,8 @@ public class SimpleServer extends AbstractServer
 	private boolean gameStarted = false;
 	private boolean gameOver = false;
 	private Random random = new Random();
+	private boolean player1WantsRematch = false;
+	private boolean player2WantsRematch = false;
 
 	public SimpleServer(int port) {
 		super(port);
@@ -40,6 +42,14 @@ public class SimpleServer extends AbstractServer
 			else if (ticTacToeMessage.getType() == TicTacToeMessage.Type.MOVE)
 			{
 				handleMove(ticTacToeMessage, client);
+			}
+			else if (ticTacToeMessage.getType() == TicTacToeMessage.Type.REMATCH)
+			{
+				handleRematch(client);
+			}
+			else if (ticTacToeMessage.getType() == TicTacToeMessage.Type.DISCONNECT)
+			{
+				handleDisconnect(client);
 			}
 			return;
 		}
@@ -82,6 +92,8 @@ public class SimpleServer extends AbstractServer
 		board = new char[3][3];
 		gameStarted = true;
 		gameOver = false;
+		player1WantsRematch = false;
+		player2WantsRematch = false;
 		if (random.nextBoolean())
 		{
 			player1Symbol = 'X';
@@ -243,5 +255,67 @@ public class SimpleServer extends AbstractServer
 
 		sendGameMessage(player1, player1Symbol, TicTacToeMessage.Type.STATUS, "Turn: " + currentTurn);
 		sendGameMessage(player2, player2Symbol, TicTacToeMessage.Type.STATUS, "Turn: " + currentTurn);
+	}
+
+	private void handleRematch(ConnectionToClient client)
+	{
+		if (!gameOver)
+		{
+			sendGameMessage(client, getPlayerSymbol(client), TicTacToeMessage.Type.STATUS, "Game is not over yet.");
+			return;
+		}
+
+		if (client == player1)
+		{
+			player1WantsRematch = true;
+			sendGameMessage(player1, player1Symbol, TicTacToeMessage.Type.STATUS, "Waiting for your opponent to accept a rematch.");
+			sendGameMessage(player2, player2Symbol, TicTacToeMessage.Type.STATUS, "Your opponent wants a rematch.");
+		}
+		else if (client == player2)
+		{
+			player2WantsRematch = true;
+			sendGameMessage(player2, player2Symbol, TicTacToeMessage.Type.STATUS, "Waiting for your opponent to accept a rematch.");
+			sendGameMessage(player1, player1Symbol, TicTacToeMessage.Type.STATUS, "Your opponent wants a rematch.");
+		}
+
+		if (player1WantsRematch && player2WantsRematch)
+		{
+			startGame();
+		}
+	}
+
+	private void handleDisconnect(ConnectionToClient client)
+	{
+		try
+		{
+			if (client == player1)
+			{
+				if (player2 != null)
+				{
+					sendGameMessage(player2, player2Symbol, TicTacToeMessage.Type.WAITING, "Your opponent disconnected. Waiting for a new opponent...");
+					player1 = player2;
+					player2 = null;
+				}
+				else
+					player1 = null;
+			}
+			else if (client == player2)
+			{
+				if (player1 != null)
+				{
+					sendGameMessage(player1, player1Symbol, TicTacToeMessage.Type.WAITING, "Your opponent disconnected. Waiting for a new opponent...");
+				}
+				player2 = null;
+			}
+			client.close();
+			gameStarted = false;
+			gameOver = false;
+			player1WantsRematch = false;
+			player2WantsRematch = false;
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

@@ -11,7 +11,7 @@ public class TicTacToeMessage implements Serializable {
 
     public enum Type
     {
-        JOIN, MOVE, WAITING, START, STATUS, GAME_OVER
+        JOIN, MOVE, WAITING, START, STATUS, GAME_OVER, REMATCH, DISCONNECT
     }
 
     private Type type;
@@ -51,6 +51,16 @@ public class TicTacToeMessage implements Serializable {
         msg.setRow(row);
         msg.setCol(col);
         return msg;
+    }
+
+    public static TicTacToeMessage rematch()
+    {
+        return new TicTacToeMessage(Type.REMATCH);
+    }
+
+    public static TicTacToeMessage disconnect()
+    {
+        return new TicTacToeMessage(Type.DISCONNECT);
     }
 
     public int getRow()
