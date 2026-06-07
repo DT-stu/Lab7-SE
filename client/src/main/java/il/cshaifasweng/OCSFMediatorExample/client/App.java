@@ -1,4 +1,5 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
+import il.cshaifasweng.OCSFMediatorExample.entities.TicTacToeMessage;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -33,9 +34,17 @@ public class App extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
     }
-
+    // sends DC message when the client closes the window
     @Override
 	public void stop() throws Exception {
+        try
+        {
+            client.sendToServer(TicTacToeMessage.disconnect());
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         client.closeConnection();
 		super.stop();
 	}

@@ -249,18 +249,10 @@ public class PrimaryController {
 			e.printStackTrace();
 		}
 	}
-	//sends disconnect request to server once the button is clicked
+	//closes the window if DC'ed
 	@FXML
 	void dcClicked(ActionEvent event)
 	{
-		try
-		{
-			SimpleClient.getClient().sendToServer(TicTacToeMessage.disconnect());
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
 		Platform.exit();
 	}
 }
